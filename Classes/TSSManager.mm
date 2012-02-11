@@ -9,7 +9,7 @@
 //#import "MSettingsController.h"
 
 #import "TSSManager.h"
-#import <IOKit/IOKitLib.h>
+#import "IOKit/IOKitLib.h"
 #import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
 #include <stdio.h>

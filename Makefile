@@ -7,7 +7,6 @@ TSSAgent_FILES += Classes/TSSWorker.m Classes/Reachability.m
 TSSAgent_PACKAGE_TARGET_DIR = /usr/bin
 TSSAgent_LDFLAGS = -framework CoreFoundation -framework IOKit -framework Foundation -framework SystemConfiguration -undefined dynamic_lookup #-framework BackRow
 
-
 include theos/makefiles/common.mk
 include theos/makefiles/tool.mk
 
