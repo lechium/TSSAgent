@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.nito.tssagent</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/bin/TSSAgent</string>
+		<string>-1337</string>
+	</array>
+	<key>StartInterval</key>
+	<integer>86400</integer>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>Nice</key>
+	<integer>1</integer>
+	<key>KeepAlive</key>
+	<false/>
+	<key>StandardErrorPath</key>
+	<string>/Library/Logs/TSSAgent.log</string>
+	<key>StandardOutPath</key>
+	<string>/Library/Logs/TSSAgent.log</string>
+</dict>
+</plist>

@@ -1,0 +1,11 @@
+#! /bin/sh
+echo "$1"
+
+if [ "$1" = upgrade ]; then
+	echo "upgrading"
+	launchctl unload /Library/LaunchDaemons/com.nito.tssagent.plist
+fi
+
+launchctl load /Library/LaunchDaemons/com.nito.tssagent.plist
+
+exit 0

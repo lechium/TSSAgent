@@ -1,0 +1,9 @@
+Architecture: iphoneos-arm
+Name: TSSAgent
+Package: com.nito.tssagent
+Version: 1.0
+Website: http://nitosoft.com
+Maintainer: nito
+Author: nito
+Description: a standalone solution for listing SHSH blobs, fetching SHSH blobs and submitting the blobs to saurik's SHSH server.
+Section: Utilities
