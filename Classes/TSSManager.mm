@@ -122,6 +122,10 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 + (NSArray *)blobArrayFromString:(NSString *)theString
 {
+	if ([[theString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@"[]"])
+	{
+		return nil;
+	}
 	NSMutableString *stripped = [[NSMutableString alloc] initWithString:theString];
 	[stripped replaceOccurrencesOfString:@"[" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stripped length])];
 	[stripped replaceOccurrencesOfString:@"{" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stripped length])];
@@ -579,8 +583,8 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	{
 		
 			//NSDictionary *tssDict = [TSSManager tssDict];
-		ChipID_ = HexToDec([CYDHex((NSData *) CYDIOGetValue("IODeviceTree:/chosen", @"unique-chip-id"), true) uppercaseString]);
-		
+			ChipID_ = HexToDec([CYDHex((NSData *) CYDIOGetValue("IODeviceTree:/chosen", @"unique-chip-id"), true) uppercaseString]);
+			//ChipID_ = @"5551532";
 			//NSLog(@"ECID: %@", ChipID_);
 		
 		theDevice = [TSSManager currentDevice];

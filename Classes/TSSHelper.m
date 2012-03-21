@@ -46,6 +46,10 @@ int main (int argc, const char * argv[]) {
 		{
 			TSSManager *man = [[TSSManager alloc] initWithMode:kTSSCydiaBlobListingSolo];
 			NSArray *blobs = [man _synchronousBlobCheck];
+			if (blobs == nil)
+			{
+				LogIt(@"No Blobs Saved!");
+			}
 			NSString *string = [man stringFromDictionary:blobs];
 			[man autorelease];
 			
