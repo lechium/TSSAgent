@@ -20,6 +20,7 @@
 		32D6E14C17739F8800BD52A8 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = SOURCE_ROOT; };
 		32D6E14D1773B11900BD52A8 /* JSONKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
 		32D6E14E1773B11900BD52A8 /* JSONKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
+		32D6E14F1773C17200BD52A8 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -27,6 +28,7 @@
 			isa = PBXGroup;
 			children = (
 				32D6E14C17739F8800BD52A8 /* Makefile */,
+				32D6E14F1773C17200BD52A8 /* README */,
 				32D6E14117739F7F00BD52A8 /* Classes */,
 			);
 			sourceTree = "<group>";

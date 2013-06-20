@@ -6,6 +6,13 @@
 //  Copyright 2012 nito, LLC. All rights reserved.
 //
 
+/**
+ 
+ This class manages all the web requests to fetch, push and process blobs from sauriks servier, apples server and the server where we maintain 
+ the different buildManifest information and the firmware versions apple is currently signing.
+ 
+ */
+
 #import <Foundation/Foundation.h>
 
 	//#define BLOB_PLIST_URL @"http://nitosoft.com/ATV2/install/k66ap.plist"
@@ -20,6 +27,8 @@ enum {
 	kTSSCydiaBlobListingSolo,
 };
 
+
+///struct modeled after CGRects for creation and comparison of different device models
 
 #define TSSNullDevice DeviceIDMake(0, 0);
 
@@ -54,8 +63,8 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 
 @property (readwrite, assign) TSSDeviceID theDevice; ///keep track of the device
 @property (readwrite, assign) int mode; ///current mode we are running in, probably not needed anymore
-@property (nonatomic, assign) NSString *baseUrlString;
-@property (nonatomic, assign) NSString *ecid;
+@property (nonatomic, assign) NSString *baseUrlString; ///the baseurl string that is modified as needed for post/get requests
+@property (nonatomic, assign) NSString *ecid; ///the current devices ecid, is kind of redudant vs static _chipID so will probably get pruned in the future.
 
 ///the response string typically has information delimited by ampersands and at the end there is the raw plist data, this returns just the raw blob data
 + (NSString *)rawBlobFromResponse:(NSString *)inputString;

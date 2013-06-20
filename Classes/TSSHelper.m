@@ -15,6 +15,12 @@
 #import "TSSManager.h"
 #import "TSSWorker.h"
 
+/**
+ 
+ the main class foundation tool class, handles the arguments that are fed in to the command line and determines the proper flow of the tool
+ 
+ */
+
 void LogIt (NSString *format, ...)
 {
     va_list args;
@@ -70,7 +76,7 @@ int main (int argc, const char * argv[]) {
         }
         NSString *string = [man stringFromDictionary:blobs];
         [man autorelease];
-        LogIt(@"%@", string);
+        LogIt(@"%@", string); //print the blob listing
         [pool release];
         return 0;
         
@@ -86,7 +92,7 @@ int main (int argc, const char * argv[]) {
         NSString *theBlob = [man _synchronousReceiveVersion:value];
         [man autorelease];
         
-        LogIt(@"%@", theBlob);
+        LogIt(@"%@", theBlob); //print the raw blob output
         
         [pool release];
         return 0;

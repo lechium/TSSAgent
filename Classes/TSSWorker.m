@@ -91,7 +91,7 @@ void MyLogIt (NSString *format, ...)
 {
 	NSMutableArray *fetchList = [[NSMutableArray alloc] init];
 	NSArray *avail = [TSSManager signableVersions]; //the versions we still report that can be signed from apple, from a plist we maintain
-	NSArray *trimmedList = [self buildsFromList:signedFW]; //this SHOULD cuts the array down to single string objects of JUST the "build" key
+	NSArray *trimmedList = [self buildsFromList:signedFW]; //this cuts the array down to single string objects of JUST the "build" key
 	
 	//	NSLog(@"trimmedList: %@", trimmedList);
 	

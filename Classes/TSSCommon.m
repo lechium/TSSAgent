@@ -98,7 +98,7 @@
 
 @class ATVVersionInfo;
 
-+ (NSString *)osBuildATV
++ (NSString *)osBuildATV ///obsolete
 {
 	Class cls = NSClassFromString(@"ATVVersionInfo"); //FIXME: obviously this cant be okay since we need it to be device agnostic maybe someday
 	if (cls != nil)
@@ -134,8 +134,7 @@
 	NSString *versionNumber = [TSSCommon osVersion];
 	NSString *baseline = @"5.0";
 	NSComparisonResult theResult = [versionNumber compare:baseline options:NSNumericSearch];
-	//NSLog(@"properVersion: %@", versionNumber);
-	//NSLog(@"theversion: %@  installed version %@", theVersion, installedVersion);
+    
 	if ( theResult == NSOrderedDescending ) { return YES; }
     else if ( theResult == NSOrderedAscending ) { return NO; }
     else if ( theResult == NSOrderedSame ) { return YES; }
@@ -148,7 +147,7 @@
 	return [[TSSCommon stringReturnForProcess:@"/usr/bin/sw_vers -productVersion"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
-+ (NSString *)osVersionATV
++ (NSString *)osVersionATV  ///obsolete
 {
 
 	Class cls = NSClassFromString(@"ATVVersionInfo");
