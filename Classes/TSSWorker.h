@@ -12,24 +12,11 @@
 
 @interface TSSWorker : NSObject {
 	
-	NSString *currentBuild;
-	NSArray *savedBuilds;
-	NSArray *queuedBuilds;
-	int queueNumber;
-	int currentIndex;
 }
 
-@property (nonatomic, retain) NSString *currentBuild;
-@property (nonatomic, retain) NSArray *savedBuilds;
-@property (nonatomic, retain) NSArray *queuedBuilds;
-@property (readwrite, assign) int queueNumber;
-@property (readwrite, assign) int currentIndex;
 
 - (void)theWholeShebang;
 - (NSArray *)filteredList:(NSArray *)signedFW;
-- (void)fetchSavedFirmwares; 
-- (void)processorDidFinish:(id)processor withStatus:(int)status;
 - (NSArray *)buildsFromList:(NSArray *)theList;
-- (void)fetchAvailableFirmwares;
 
 @end

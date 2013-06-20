@@ -49,11 +49,7 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 
 @interface TSSManager : NSObject {
 
-	NSURLConnection *           _connection;
-	NSMutableData *				receivedData;
-	NSString *					_returnDataAsString;
 	NSString *					baseUrlString;
-	id							delegate;
 	NSString *					ecid;
 	int							mode;
 	TSSDeviceID					theDevice;
@@ -61,42 +57,29 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 
 @property (readwrite, assign) TSSDeviceID theDevice;
 @property (readwrite, assign) int mode;
-@property (nonatomic, assign) NSString *_returnDataAsString;
 @property (nonatomic, assign) NSString *baseUrlString;
 @property (nonatomic, assign) NSString *ecid;
-@property (nonatomic, retain) id delegate;
 
-- (NSString *)stringFromDictionary:(NSDictionary *)theDict;
-- (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion;
++ (NSString *)rawBlobFromResponse:(NSString *)inputString; ///the response string typically has information delimited by ampersands and at the end there is the raw plist data, this returns just the raw blob data
++ (TSSDeviceID)currentDevice; ///the current device we are running on, in an easy to use struct for constructing plist responses
++ (NSArray *)signableVersions; ///the versions apple is currently signing
++ (NSArray *)blobArrayFromString:(NSString *)theString; ///the array of blobs the user has on file, parsed from the initial JSON string
++ (NSString *)ipAddress; ///current user IP address
+
+- (void)logDevice:(TSSDeviceID)inputDevice; ///debug method to log out the current device easily
+
+- (NSString *)stringFromDictionary:(id)theDict; ///convenience function that may be better suited to be in TSSCommon
+
+- (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion; ///synchronously receieve a blob from cydia
 - (NSString *)_synchronousPushBlob:(NSString *)theBlob;
 - (NSString *)_synchronousReceiveVersion:(NSString *)theVersion;
 - (NSArray *)_synchronousBlobCheck;
-+ (NSString *)rawBlobFromResponse:(NSString *)inputString;
-- (void)logDevice:(TSSDeviceID)inputDevice;
-+ (TSSDeviceID)currentDevice;
-+ (NSArray *)signableVersions;
-+ (NSArray *)blobArrayFromString:(NSString *)theString;
-+ (NSString *)blobPathFromString:(NSString *)inputString andEcid:(NSString *)theEcid;
-+(NSString *) ipAddress;
+
 - (NSMutableURLRequest *)requestForList;
 - (NSMutableURLRequest *)requestForBlob:(NSString *)theBlob;
 - (NSMutableURLRequest *)postRequestFromVersion:(NSString *)theVersion;
 - (NSDictionary *)tssDictFromVersion:(NSString *)versionNumber;
 - (id)initWithMode:(int)theMode;
-- (void)_receiveDidStart;
-- (void)_updateStatus:(int)status;
-- (void)_receiveDidStopWithStatus:(int)status;
-- (BOOL)isReceiving;
-- (void)_checkForBlobs;
-- (void)_pushBlob:(NSString *)theBlob;
-- (void)_startReceive;
-- (void)_receiveVersion:(NSString *)theVersion;
-- (void)_stopReceiveWithStatus:(int)status;
-
-- (void)connection:(NSURLConnection *)theConnection didReceiveResponse:(NSURLResponse *)response;
-- (void)connection:(NSURLConnection *)theConnection didReceiveData:(NSData *)data;
-- (void)connection:(NSURLConnection *)theConnection didFailWithError:(NSError *)error;
-- (void)connectionDidFinishLoading:(NSURLConnection *)theConnection;
 
 
 @end

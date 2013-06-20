@@ -6,10 +6,34 @@
 //  Copyright 2012 nito, LLC. All rights reserved.
 //
 
+@interface ATVVersionInfo : NSObject {
+}
+
++ (int)compareEFIVersion:(id)version withEFIVersion:(id)efiversion;	// 0x301c5fa1
++ (int)compareIRVersion:(id)version withIRVersion:(id)irversion;	// 0x301c6019
++ (int)compareOSVersion:(id)version andBuild:(id)build withOSVersion:(id)osversion andBuild:(id)build4;	// 0x301c5e01
++ (int)compareSIVersion:(id)version withSIVersion:(id)siversion;	// 0x301c6161
++ (id)currentEFIVersion;	// 0x301c5f25
++ (id)currentIRVersion;	// 0x301c5fe5
++ (id)currentOSBuildVersion;	// 0x301c5dd9
++ (id)currentOSVersion;	// 0x301c5db1
++ (id)currentSIBootVersion;	// 0x301c6131
++ (id)currentSIMainVersion;	// 0x301c6125
++ (BOOL)isSIFirmwareValid;	// 0x301c615d
+
+@end
+
+
 #import "TSSCommon.h"
 #import "Reachability.h"
 
 @implementation TSSCommon
+
+/*
+ 
+ may not be using this at all, probably should be to make this project properly device agnostic
+ 
+ */
 
 + (BOOL)internetAvailable
 {
@@ -35,14 +59,18 @@
 	return NO;
 }
 
+/*
+ 
+ for some reason in 5.0+ [UIDevice currentDevice] returns an exception the first time called, but works thereafter, this fixes that.
+ 
+ */
+
 + (void)fixUIDevices
 {
 	id cd = nil;
 	Class uid = NSClassFromString(@"UIDevice");
 	if ([TSSCommon fiveOHPlus])
 	{
-		//LOG_SELF
-		//[cd setObject:a forKey:a];
 		
 		@try {
 			cd = [uid currentDevice];
@@ -63,22 +91,24 @@
 	
 }
 
-+(NSString *)osBuild
++ (NSString *)osBuild
 {
 	return [[TSSCommon stringReturnForProcess:@"/usr/bin/sw_vers -buildVersion"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
+
+@class ATVVersionInfo;
 
 + (NSString *)osBuildATV
 {
 	Class cls = NSClassFromString(@"ATVVersionInfo"); //FIXME: obviously this cant be okay since we need it to be device agnostic maybe someday
 	if (cls != nil)
 	{
-		return [cls currentOSBuildVersion];
+		return [ATVVersionInfo currentOSBuildVersion];
 	}
 	return nil;	
 }
 
-+(NSString *)stringReturnForProcess:(NSString *)call
++ (NSString *)stringReturnForProcess:(NSString *)call
 {
     if (call==nil) 
         return 0;
@@ -101,30 +131,16 @@
 
 + (BOOL)fiveOHPlus
 {
-	
 	NSString *versionNumber = [TSSCommon osVersion];
 	NSString *baseline = @"5.0";
 	NSComparisonResult theResult = [versionNumber compare:baseline options:NSNumericSearch];
 	//NSLog(@"properVersion: %@", versionNumber);
 	//NSLog(@"theversion: %@  installed version %@", theVersion, installedVersion);
-	if ( theResult == NSOrderedDescending )
-	{
-		//	NSLog(@"%@ is greater than %@", versionNumber, baseline);
-		
-		return YES;
-		
-	} else if ( theResult == NSOrderedAscending ){
-		
-		//NSLog(@"%@ is greater than %@", baseline, versionNumber);
-		return NO;
-		
-	} else if ( theResult == NSOrderedSame ) {
-		
-		//		NSLog(@"%@ is equal to %@", versionNumber, baseline);
-		return YES;
-	}
+	if ( theResult == NSOrderedDescending ) { return YES; }
+    else if ( theResult == NSOrderedAscending ) { return NO; }
+    else if ( theResult == NSOrderedSame ) { return YES; }
 	
-	return NO;
+    return NO;
 }
 
 + (NSString *)osVersion
@@ -138,15 +154,7 @@
 	Class cls = NSClassFromString(@"ATVVersionInfo");
 	if (cls != nil)
 	{
-		//NSString *currentOSBuildVersion = [cls currentOSBuildVersion];
-		NSString *currentOSVersion = [cls currentOSVersion];
-		
-		//Class uiCls = NSClassFromString(@"UIDevice");
-		
-		//NSString *uiDeviceBuild = [[uiCls currentDevice] buildVersion];
-		//NSLog(@"uiDeviceBuild: %@", uiDeviceBuild);
-		//NSLog(@"currentOSBuildVersion: %@ currentOSVersion: %@", currentOSBuildVersion, currentOSVersion);
-		return currentOSVersion;
+		return [cls currentOSVersion];
 	}
 	return nil;	
 }

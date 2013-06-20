@@ -10,7 +10,9 @@
 
 }
 
-+(NSString *)stringReturnForProcess:(NSString *)call;
+///users popen to run a process and then returns its output in a single string.
++ (NSString *)stringReturnForProcess:(NSString *)call;
+///returns the os version
 + (NSString *)osVersion;
 + (BOOL)fiveOHPlus;
 + (NSString *)osBuild;

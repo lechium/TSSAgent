@@ -17,7 +17,17 @@
 #include <stddef.h>
 #include <sys/types.h>
 #import "TSSCommon.h"
+#import "JSONKit.h"
 
+//not sure why foundation isnt picking this up, keep the compiler from complaining
+
+@interface NSHost : NSObject {
+    
+}
+
++ (id)currentHost;
+
+@end
 
 /*
  
@@ -28,10 +38,6 @@
 
 @interface TSSManager ()
 
-	// Properties that don't need to be seen by the outside world.
-
-@property (nonatomic, readonly) BOOL              isReceiving;
-@property (nonatomic, retain)   NSURLConnection * connection;
 
 @end
 
@@ -92,7 +98,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 @implementation TSSManager
 
-@synthesize baseUrlString, delegate, _returnDataAsString, ecid, mode, theDevice;
+@synthesize baseUrlString, ecid, mode, theDevice;
 
 /*
  
@@ -120,6 +126,8 @@ static NSString *CYDHex(NSData *data, bool reverse) {
  
  */
 
+//this should now be obsolete, still needs actual testing
+
 + (NSArray *)blobArrayFromString:(NSString *)theString
 {
 	if ([[theString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@"[]"])
@@ -135,15 +143,15 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 	NSArray *fullArray = [stripped componentsSeparatedByString:@"},"]; //1.
 	for (id currentBlob in fullArray)
-	{ 
+	{
 		NSArray *keyItems = [currentBlob componentsSeparatedByString:@", "]; //2.
 		NSMutableDictionary *theDict = [[NSMutableDictionary alloc] init];
 		for (id currentKey in keyItems)
 		{
 			NSArray *keyObjectArray = [[currentKey stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\"}]"]] componentsSeparatedByString:@":"]; //3.
 			NSString *theObject = [[keyObjectArray objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			NSString *theKey = [[keyObjectArray objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];			
-			[theDict setObject:theObject forKey:theKey];	//4.		
+			NSString *theKey = [[keyObjectArray objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			[theDict setObject:theObject forKey:theKey];	//4.
 		}
 		
 		[blobArray addObject:[theDict autorelease]]; //5.
@@ -154,6 +162,8 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	return [blobArray autorelease];
 	
 }
+
+//obsolete
 
 + (NSString *)versionFromBuild:(NSString *)buildNumber
 {
@@ -173,6 +183,8 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 		return @"5.0b1";
 	if ([buildNumber isEqualToString:@"9B5141a"])
 		return @"5.0b2";
+    
+    return nil;
 }
 
 - (void)logDevice:(TSSDeviceID)inputDevice
@@ -192,10 +204,10 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 	if ([theDevice isEqualToString:@"iPad1,1"])
 		return DeviceIDMake(2, 35120);
-		
+    
 	if ([theDevice isEqualToString:@"iPad2,1"])
 		return DeviceIDMake(4, 35136);
-
+    
 	if ([theDevice isEqualToString:@"iPad2,2"])
 		return DeviceIDMake(6, 35136);
 	
@@ -225,7 +237,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 	if ([theDevice isEqualToString:@"iPod2,1"])
 		return DeviceIDMake(0, 34592);
-
+    
 	if ([theDevice isEqualToString:@"iPod3,1"])
 		return DeviceIDMake(2, 35106);
 	
@@ -236,7 +248,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 	/*
 	 
-
+     
 	 "appletv2,1": (35120, 16, 'AppleTV2,1'),
 	 
 	 "ipad1,1": (35120, 2, 'iPad1,1'),
@@ -260,11 +272,11 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 + (NSString *)rawBlobFromResponse:(NSString *)inputString
 {
-
+    
 	NSArray *componentArray = [inputString componentsSeparatedByString:@"&"];
 	int count = [componentArray count];
-//	int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
-//	NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
+    //	int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
+    //	NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
 	if (count >= 3)
 	{
 		NSString *plist = [[componentArray objectAtIndex:2] substringFromIndex:15];
@@ -279,38 +291,38 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 }
 
-//deprecated
+//obsolete, just leaving in here for some notes on output formatting
 
 + (NSString *)blobPathFromString:(NSString *)inputString andEcid:(NSString *)theEcid andBuild:(NSString *)theBuildVersion
 {
 	//LOG_SELF
-		//STATUS=0&MESSAGE=SUCCESS&REQUEST_STRING=<?xml
+    //STATUS=0&MESSAGE=SUCCESS&REQUEST_STRING=<?xml
 	
 	NSString *version = [TSSManager versionFromBuild:theBuildVersion];
 	//NSLog(@"version: %@", version);
 	NSArray *componentArray = [inputString componentsSeparatedByString:@"&"];
-		//	NSLog(@"componentArray: %@", componentArray);
+    //	NSLog(@"componentArray: %@", componentArray);
 	int count = [componentArray count];
-		//STATUS=0
-		//MESSAGE=SUCCESS
-		//REQUEST_STRING=<?xml
-		
-		//int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
-		//NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
+    //STATUS=0
+    //MESSAGE=SUCCESS
+    //REQUEST_STRING=<?xml
+    
+    //int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
+    //NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
 	if (count >= 3)
 	{
 		NSString *plist = [[componentArray objectAtIndex:2] substringFromIndex:15];
-			//NSLog(@"plist: %@", plist);
+        //NSLog(@"plist: %@", plist);
 		
 		NSString *outputName = [NSString stringWithFormat:@"/private/var/tmp/%@-appletv2,1-%@", theEcid, version];
 		//NSLog(@"outputName: %@", outputName);
-			//NSString *finalName = [outputName stringByAppendingPathExtension:@"shsh"];
-			//NSString *tmp = @"/private/var/tmp/thefile";
+        //NSString *finalName = [outputName stringByAppendingPathExtension:@"shsh"];
+        //NSString *tmp = @"/private/var/tmp/thefile";
 		[plist writeToFile:outputName atomically:YES encoding:NSUTF8StringEncoding error:nil];
-			//NSDictionary *blob = [NSDictionary dictionaryWithContentsOfFile:outputName];
-			//[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
-			//gzip 780309390798-appletv2,1-4.4 -S.shsh
-			//[self gzipBlob:outputName];
+        //NSDictionary *blob = [NSDictionary dictionaryWithContentsOfFile:outputName];
+        //[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
+        //gzip 780309390798-appletv2,1-4.4 -S.shsh
+        //[self gzipBlob:outputName];
 		
 		return outputName;
 	} else {
@@ -323,63 +335,20 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	
 }
 
-//deprecated
 
-+ (NSString *)blobPathFromString:(NSString *)inputString andEcid:(NSString *)theEcid
-{
-		//STATUS=0&MESSAGE=SUCCESS&REQUEST_STRING=<?xml
-	
-	NSArray *componentArray = [inputString componentsSeparatedByString:@"&"];
-		//	NSLog(@"componentArray: %@", componentArray);
-	int count = [componentArray count];
-		//STATUS=0
-		//MESSAGE=SUCCESS
-		//REQUEST_STRING=<?xml
-	
-		//int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
-		//NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
-	
-	if (count >= 3)
-	{
-		NSString *plist = [[componentArray objectAtIndex:2] substringFromIndex:15];
-			//NSLog(@"plist: %@", plist);
-		
-		NSString *outputName = [NSString stringWithFormat:@"/private/var/tmp/%@-appletv2,1-%@", theEcid, [TSSCommon osVersion]];
-			//NSString *finalName = [outputName stringByAppendingPathExtension:@"shsh"];
-			//NSString *tmp = @"/private/var/tmp/thefile";
-		[plist writeToFile:outputName atomically:YES encoding:NSUTF8StringEncoding error:nil];
-			//NSDictionary *blob = [NSDictionary dictionaryWithContentsOfFile:outputName];
-			//[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
-			//gzip 780309390798-appletv2,1-4.4 -S.shsh
-			//[self gzipBlob:outputName];
-		
-		return outputName;
-	} else {
-		
-		NSLog(@"probably failed: %@ count: %i", componentArray, count);
-		
-		return nil;
-	}
-	
-	
-}
++ (NSString *)ipAddress { return [[[NSHost currentHost] addresses] objectAtIndex:1]; }
 
-+(NSString *) ipAddress {
-    NSString * h = [[[NSHost currentHost] addresses] objectAtIndex:1];
-    return h ;  
-}
-
-	/* 
-	 
-	 the request we send to get the list of SHSH blobs for the current device 
-
-	 NOTE: this is all requisite on saurik updating the BuildManifest info on his servers to reflect new versions.
-*/
+/*
+ 
+ the request we send to get the list of SHSH blobs for the current device
+ 
+ NOTE: this is all requisite on saurik updating the BuildManifest info on his servers to reflect new versions.
+ */
 
 
 - (NSMutableURLRequest *)requestForList
 {
-
+    
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
 	[request setURL:[NSURL URLWithString:baseUrlString]];
 	[request setHTTPMethod:@"POST"];
@@ -388,7 +357,6 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	[request setValue:nil forHTTPHeaderField:@"X-User-Agent"];
 	
 	return request;
-		//return request;
 }
 
 /*
@@ -397,50 +365,18 @@ static NSString *CYDHex(NSData *data, bool reverse) {
  
  */
 
-- (NSMutableURLRequest *)oldrequestForBlob:(NSString *)theBlob
-{
-		//LOG_SELF
-	NSString *post = [NSString stringWithContentsOfFile:theBlob encoding:NSUTF8StringEncoding error:nil];
-	
-		//	[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
-	//NSLog(@"post: %@", post);
-	NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
-	
-	NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
-	
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
-	[request setURL:[NSURL URLWithString:baseUrlString]];
-	[request setHTTPMethod:@"POST"];
-	[request setValue:postLength forHTTPHeaderField:@"Content-Length"];
-	[request setValue:@"text/xml" forHTTPHeaderField:@"Content-Type"];
-	[request setValue:@"X-User-Agent" forHTTPHeaderField:@"User-Agent"];
-	[request setValue:nil forHTTPHeaderField:@"X-User-Agent"];
-	[request setHTTPBody:postData];
-	
-	return request;
-
-}
-
 - (NSMutableURLRequest *)requestForBlob:(NSString *)post
 {
-	//LOG_SELF
-	//NSString *post = [NSString stringWithContentsOfFile:theBlob encoding:NSUTF8StringEncoding error:nil];
-	
-	//	[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
-	//NSLog(@"post: %@", post);
 	NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
-	
-	NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
-	
+    NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
 	[request setURL:[NSURL URLWithString:baseUrlString]];
 	[request setHTTPMethod:@"POST"];
 	[request setValue:postLength forHTTPHeaderField:@"Content-Length"];
 	[request setValue:@"text/xml" forHTTPHeaderField:@"Content-Type"];
-	[request setValue:@"X-User-Agent" forHTTPHeaderField:@"User-Agent"];
+	[request setValue:@"X-User-Agent" forHTTPHeaderField:@"User-Agent"]; //should probably change this to a custom user agent
 	[request setValue:nil forHTTPHeaderField:@"X-User-Agent"];
 	[request setHTTPBody:postData];
-	
 	return request;
 }
 
@@ -451,7 +387,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
  
  */
 
-- (NSString *)stringFromDictionary:(NSDictionary *)theDict
+- (NSString *)stringFromDictionary:(id)theDict
 {
 	NSString *error = nil;
 	NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:theDict format:kCFPropertyListXMLFormat_v1_0 errorDescription:&error];
@@ -467,21 +403,12 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 - (NSMutableURLRequest *)postRequestFromVersion:(NSString *)theVersion
 {
-		//	LOG_SELF
-		//NSString *tmp = @"/private/var/tmp/thefile";
 	NSDictionary *theDict = [self tssDictFromVersion:theVersion]; //create a dict based on buildmanifest, we want to read this dictionary from a server in the future.
 	self.ecid = [theDict valueForKey:@"ApECID"];
-		//NSLog(@"self.ecid: %@", self.ecid);
-	[ecid retain];
-	
-		//[theDict writeToFile:tmp atomically:YES];
-		//NSString *post = [NSString stringWithContentsOfFile:tmp];
-
+    [ecid retain]; //crashes for some reason if we dont retain here
+    
 	NSString *post = [self stringFromDictionary:theDict]; //convert the nsdictionary into a string we can submit
-	
-		//[[NSFileManager defaultManager] removeItemAtPath:tmp error:nil];
-		//NSLog(@"post: %@", post);
-	NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]; //this might actually need to be NSUTF8StringEncoding, but it works.
+	NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]; //convert string to NSData that can be used as the HTTPBody of the POST
 	
 	NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
 	
@@ -492,9 +419,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	[request setValue:@"text/xml" forHTTPHeaderField:@"Content-Type"];
 	[request setValue:@"InetURL/1.0" forHTTPHeaderField:@"User-Agent"];
 	[request setHTTPBody:postData];
-	
 	return request;
-	//return request;
 }
 
 + (NSArray *)signableVersions
@@ -505,7 +430,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 /*
  
- grabs the proper build manifest info from a local plist called k66ap.plist, in the future (for release) need to fetch from a plist onlinel.
+ grabs the proper build manifest info from a plist that is hosted online
  
  we combine this build manifest into an example dictionary (plist) to make a tss request from apples servers.
  
@@ -514,32 +439,18 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 - (NSDictionary *)tssDictFromVersion:(NSString *)versionNumber //ie 9A406a
 {
-	TSSDeviceID cd = self.theDevice;
-	//[self logDevice:cd];
+	TSSDeviceID cd = self.theDevice; //ascertain the current device
+	NSDictionary *k66 = [NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:BLOB_PLIST_URL]]; //fetch our dictionary of buildManifests
+    NSDictionary *versionDict = [k66 valueForKey:versionNumber]; //grab our specific versionDict, we should probably bail here if that doesnt exist.
+	NSMutableDictionary *theDict = [[NSMutableDictionary alloc] initWithDictionary:versionDict]; //create a mutable version, mutableCopy would probably be sufficient here
 	
-	NSDictionary *k66 = [NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:BLOB_PLIST_URL]];
-		//NSDictionary *k66 = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle bundleForClass:[TSSManager class]] pathForResource:@"k66ap" ofType:@"plist"]];
-	//NSLog(@"k66: %@", k66);
-	NSDictionary *versionDict = [k66 valueForKey:versionNumber];
-	
-	NSMutableDictionary *theDict = [[NSMutableDictionary alloc] initWithDictionary:versionDict];
-	
-		//ChipID_ = HexToDec([CYDHex((NSData *) CYDIOGetValue("IODeviceTree:/chosen", @"unique-chip-id"), true) uppercaseString]);
-	//NSString *SerialNumber_ = (NSString *) CYDIOGetValue("IOService:/", @"IOPlatformSerialNumber");
-	//NSLog(@"chipID hex: %@", ChipID_);
-	//NSLog(@"SerialNumber_: %@", SerialNumber_);
-	//NSLog(@"chipID dec: %@", HexToDec(ChipID_));
 	[theDict setObject:[NSNumber numberWithBool:YES] forKey:@"@APTicket"];
 	[theDict setObject:[TSSManager ipAddress] forKey:@"@HostIpAddress"];
 	[theDict setObject:@"mac" forKey:@"@HostPlatformInfo"];
-	//[theDict setObject:[TSSManager uuidFormatted] forKey:@"@UUID"];
 	[theDict setObject:[NSNumber numberWithInt:cd.boardID] forKey:@"ApBoardID"];
 	[theDict setObject:[NSNumber numberWithInt:cd.chipID] forKey:@"ApChipID"];
 	[theDict setObject:@"libauthinstall-107" forKey:@"@VersionInfo"];
 	[theDict setObject:ChipID_ forKey:@"ApECID"];
-	
-	//FIXME: STILL NEED ApNonce?
-	
 	[theDict setObject:[NSNumber numberWithBool:YES] forKey:@"ApProductionMode"];
 	[theDict setObject:[NSNumber numberWithInt:1] forKey:@"ApSecurityDomain"];
 	
@@ -549,30 +460,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 /*
  
- used to think the UUID listed in the tss-request was the uuid of the actual device, now i dont know what it is, dont know if its important.
- 
- */
-/*
-+ (NSString *)uuidFormatted
-{
-	[TSSCommon fixUIDevices];
-	NSString *theUUID = [[[UIDevice currentDevice] uniqueIdentifier] uppercaseString];
-	//NSLog(@"ogUUID: %@", theUUID);
-	NSString *stringOne = [theUUID substringWithRange:NSMakeRange(0, 8)];
-	NSString *stringTwo = [theUUID substringWithRange:NSMakeRange(8, 4)];
-	NSString *stringThree = [theUUID substringWithRange:NSMakeRange(12, 4)];
-	NSString *stringFour = [theUUID substringWithRange:NSMakeRange(16, 4)];
-	NSString *stringFive = [theUUID substringWithRange:NSMakeRange(20, [theUUID length] - 20)];
-	
-	return [NSString stringWithFormat:@"%@-%@-%@-%@-%@", stringOne, stringTwo, stringThree, stringFour, stringFive];
-	
-	
-}
-*/
-
-/*
- 
- should have a switch statement here to start the requisite processes, not just for the blob listing one, even if the delegate is set after its hould still pick up the end functions properly.
+ should have a switch statement here to start the requisite processes, not just for the blob listing one, even if the delegate is set after its should still pick up the end functions properly.
  
  
  */
@@ -582,302 +470,95 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	if ((self = [super init]) != nil);
 	{
 		
-			//NSDictionary *tssDict = [TSSManager tssDict];
-			ChipID_ = HexToDec([CYDHex((NSData *) CYDIOGetValue("IODeviceTree:/chosen", @"unique-chip-id"), true) uppercaseString]);
-			//ChipID_ = @"5551532";
-			//NSLog(@"ECID: %@", ChipID_);
-		
+        ChipID_ = HexToDec([CYDHex((NSData *) CYDIOGetValue("IODeviceTree:/chosen", @"unique-chip-id"), true) uppercaseString]);
 		theDevice = [TSSManager currentDevice];
-			//NSLog(@"tssDict: %@", tssDict);
-			//[self _startReceive];
-		self.mode = theMode;
-		
-		if (theMode == kTSSCydiaBlobListing)
-		{
-			//NSLog(@"checkForBlobs");
-			[self _checkForBlobs];
-			
-			
-		}
-			
-		
+        self.mode = theMode;
+        
 		return (self);
-		
 	}
-	
 	return nil;
 }
 
 
-	//URL/receiving crap
-
-	// not used yet
-
-- (void)_receiveDidStart
-{
-	
-	
-}
-
-- (void)_updateStatus:(int)status
-{
-	
-}
-
-- (void)_receiveDidStopWithStatus:(int)status
-{
-	
-	if( delegate && [delegate respondsToSelector:@selector(processorDidFinish:withStatus:)] ) {
-		[delegate processorDidFinish:self withStatus:status];
-	}
-	
-}
-
-#pragma mark * Core transfer code
-
-	// This is the code that actually does the networking.
-
-@synthesize connection    = _connection;
-
-
-- (BOOL)isReceiving
-{
-    return (self.connection != nil);
-}
+/*
+ 
+ see what blobs are available for this particular device
+ 
+ */
 
 - (NSArray *)_synchronousBlobCheck
 {
 	
-		//just check if interwebz are available first, if they aren't, bail
+    //just check if interwebz are available first, if they aren't, bail
 	
 	if ([TSSCommon internetAvailable] == FALSE)
 	{
 		
 		NSLog(@"no internet available, should we bail?!");
-			//	return nil
-		
+        //	return nil
 	}
-	
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    
+
 	// First get and check the URL.
     
 	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/check/%@", ChipID_];
-	
-	//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-	//NSLog(@"URL: %@", url);
-	
-	
-	// If the URL is bogus, let the user know.  Otherwise kick off the connection.
     
-    if ( ! success) {
-		assert(!success);
-		
-    } else {
-		
-		
-		// Open a connection for the URL.
-		
-        request = [self requestForList];
-		
-        assert(request != nil);
-        
-	
-		NSURLResponse *theResponse = nil;
-		NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
-		
-		NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
-		
-			//NSLog(@"datString length: %i", [datString length]);
-		
-		if ([datString length] <= 2)
-		{
-
-			[datString release];
-			return nil;
-		}
-		
-		NSArray *blobArray = [TSSManager blobArrayFromString:datString]; 
-		
-		[datString release];
-		
-		return blobArray;
-	
+    // Open a connection for the URL.
+    
+    NSMutableURLRequest *request = [self requestForList];
+    
+    NSURLResponse *theResponse = nil;
+    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
+    NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
+    if ([datString length] <= 2)
+    {
+        [datString release];
+        return nil;
     }
-	
-	return nil;
+
+    //NSArray *blobArray = [TSSManager blobArrayFromString:datString];
+    NSArray *blobArray = [datString objectFromJSONString];
+    [datString release];
+    return blobArray;
 }
 
-- (void)_checkForBlobs
-{
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    receivedData =		[[NSMutableData data] retain];
-    assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	
-		// First get and check the URL.
-    
-	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/check/%@", ChipID_];
-	
-		//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-		//NSLog(@"URL: %@", url);
-	
-	
-		// If the URL is bogus, let the user know.  Otherwise kick off the connection.
-    
-    if ( ! success) {
-		assert(!success);
-		
-			//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-			// Open a connection for the URL.
-		
-        request = [self requestForList];
-			//[request setHTTPMethod:@"POST"];
-		
-        assert(request != nil);
-        
-        self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-        assert(self.connection != nil);
-		
-			// Tell the UI we're receiving.
-        
-        [self _receiveDidStart];
-    }
-}
+/*
+ 
+ push the newly constructed blob to sauriks servers for safekeeping.
+ 
+ */
 
-- (void)_pushBlob:(NSString *)theBlob
-{
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    receivedData =		[[NSMutableData data] retain];
-    assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	TSSDeviceID cd = self.theDevice;
-	
-	//[self logDevice:cd];
-		// First get and check the URL.
-    
-	//baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/store/35120/16/%@", ChipID_];
-	
-	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/store/%i/%i/%@", cd.chipID, cd.boardID, ChipID_];
-	
-		//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-	//NSLog(@"URL: %@", url);
-		
-	
-		// If the URL is bogus, let the user know.  Otherwise kick off the connection.
-    
-    if ( ! success) {
-		assert(!success);
-		
-			//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-			// Open a connection for the URL.
-		
-        request = [self requestForBlob:theBlob];
-			//[request setHTTPMethod:@"POST"];
-		
-        assert(request != nil);
-        
-        self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-        assert(self.connection != nil);
-		
-			// Tell the UI we're receiving.
-        
-        [self _receiveDidStart];
-    }
-}
-	
 - (NSString *)_synchronousPushBlob:(NSString *)theBlob
 {
 	if ([TSSCommon internetAvailable] == FALSE)
 	{
 		
 		NSLog(@"no internet available, should we bail?!");
-			//	return nil;
+        //	return nil;
 		
 	}
-	//NSLog(@"pushingBlob: %@", theBlob);
-    BOOL                success;
-    NSURL *             url;
+	
     NSMutableURLRequest *      request;
-    
 	TSSDeviceID cd = self.theDevice;
-	
-	//[self logDevice:cd];
-	// First get and check the URL.
-    
-
 	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/store/%i/%i/%@", cd.chipID, cd.boardID, ChipID_];
-	
-	//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-	//NSLog(@"URL: %@", url);
-	
-	
-	// If the URL is bogus, let the user know.  Otherwise kick off the connection.
     
-    if ( ! success) {
-		assert(!success);
-		
-		//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-		// Open a connection for the URL.
-		
-        request = [self requestForBlob:theBlob];
-		assert(request != nil);
-   
-
-		NSHTTPURLResponse * theResponse = nil;
-		[NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
-		
-	
-		NSString *returnString = [NSString stringWithFormat:@"Request returned with response: \"%@\" with status code: %i",[NSHTTPURLResponse localizedStringForStatusCode:theResponse.statusCode], theResponse.statusCode ];
-	
-		
-		return returnString;
-		
-		
-	}
-	
-	return nil;
+    // Open a connection for the URL.
+    request = [self requestForBlob:theBlob];
+    
+    NSHTTPURLResponse * theResponse = nil;
+    
+    [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
+    
+    NSString *returnString = [NSString stringWithFormat:@"Request returned with response: \"%@\" with status code: %i",[NSHTTPURLResponse localizedStringForStatusCode:theResponse.statusCode], theResponse.statusCode ];
+    
+    return returnString;
+    
 }
 
+/* 
+ 
+ fetch the specified blob version from cydias servers
+ 
+ */
 
 - (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion
 {
@@ -888,314 +569,47 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 		return nil;
 		
 	}
-		//NSLog(@"receivingVersion: %@", theVersion);
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-		//receivedData =		[[NSMutableData data] retain];
-		//assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	
-		// First get and check the URL.
     
-		//baseUrlString = @"http://gs.apple.com/TSS/controller?action=2";
-	
-		baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-		//NSLog(@"URL: %@", url);
-		//LocationLog(@"URL: %@", url);
-	
-	
-		// If the URL is bogus, let the user know.  Otherwise kick off the connection.
+    baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
     
-    if ( ! success) {
-		assert(!success);
-		
-			//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-			// Open a connection for the URL.
-		
-        request = [self postRequestFromVersion:theVersion];
-			//[request setHTTPMethod:@"POST"];
-		
-		
-		NSURLResponse *theResponse = nil;
-		NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
-		
-		NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
-		
-		NSString *outString = [TSSManager rawBlobFromResponse:datString]; 
-		
-		[datString release];
-		
-		return outString;
-		
-    }
-	
-	return nil;
+    // Open a connection for the URL.
+    
+    NSMutableURLRequest *request = [self postRequestFromVersion:theVersion];
+    NSURLResponse *theResponse = nil;
+    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
+    NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
+    NSString *outString = [TSSManager rawBlobFromResponse:datString];
+    [datString release];
+    
+    return outString;
 }
+
+/*
+ 
+ synchronously recieve a blob version from apples servers
+ 
+ */
 
 - (NSString *)_synchronousReceiveVersion:(NSString *)theVersion
 {
-	//NSLog(@"receivingVersion: %@", theVersion);
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    //receivedData =		[[NSMutableData data] retain];
-    //assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	
-	// First get and check the URL.
     
 	baseUrlString = @"http://gs.apple.com/TSS/controller?action=2";
 	
-	//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-	//NSLog(@"URL: %@", url);
-	//LocationLog(@"URL: %@", url);
-	
-	
-	// If the URL is bogus, let the user know.  Otherwise kick off the connection.
+    // Open a connection for the URL.
+    NSMutableURLRequest *request = [self postRequestFromVersion:theVersion];
+    NSURLResponse *theResponse = nil;
+    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
+    NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
+    NSString *outString = [TSSManager rawBlobFromResponse:datString];
+    [datString release];
+    return outString;
     
-    if ( ! success) {
-		assert(!success);
-		
-		//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-		// Open a connection for the URL.
-		
-        request = [self postRequestFromVersion:theVersion];
-		//[request setHTTPMethod:@"POST"];
-		
-		
-		NSURLResponse *theResponse = nil;
-		NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
-		
-		NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
-		
-		NSString *outString = [TSSManager rawBlobFromResponse:datString]; 
-		
-		[datString release];
-		
-		return outString;
-      
-    }
 }
 
-	//http://cydia.saurik.com/tss@home/api/check/%llu <--ecid
-		
-- (void)_receiveVersion:(NSString *)theVersion
-{
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    receivedData =		[[NSMutableData data] retain];
-    assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	
-		// First get and check the URL.
-    
-	baseUrlString = @"http://gs.apple.com/TSS/controller?action=2";
-	
-		//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-	
-    success = (url != nil);
-	
-		//NSLog(@"URL: %@", url);
-		//LocationLog(@"URL: %@", url);
-	
-	
-		// If the URL is bogus, let the user know.  Otherwise kick off the connection.
-    
-    if ( ! success) {
-		assert(!success);
-		
-			//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-			// Open a connection for the URL.
-		
-        request = [self postRequestFromVersion:theVersion];
-			//[request setHTTPMethod:@"POST"];
-		
-        assert(request != nil);
-        
-        self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-        assert(self.connection != nil);
-		
-			// Tell the UI we're receiving.
-        
-        [self _receiveDidStart];
-    }
-}
-
-- (void)_startReceive
-	// Starts a connection to download the current URL.
-{
-    BOOL                success;
-    NSURL *             url;
-    NSMutableURLRequest *      request;
-    receivedData =		[[NSMutableData data] retain];
-    assert(self.connection == nil);         // don't tap receive twice in a row!
-	
-	
-		// First get and check the URL.
-    
-	baseUrlString = @"http://gs.apple.com/TSS/controller?action=2";
-	
-		//baseUrlString = @"http://cydia.saurik.com/TSS/controller?action=2";
-	
-	
-	url = [NSURL URLWithString:baseUrlString];
-
-    success = (url != nil);
-	
-		//NSLog(@"URL: %@", url);
-		//LocationLog(@"URL: %@", url);
-	
-	
-		// If the URL is bogus, let the user know.  Otherwise kick off the connection.
-    
-    if ( ! success) {
-		assert(!success);
-		
-			//self.statusLabel.text = @"Invalid URL";
-    } else {
-		
-		
-			// Open a connection for the URL.
-		
-        request = [self postRequestFromVersion:[TSSCommon osBuild]];
-			//[request setHTTPMethod:@"POST"];
-		
-        assert(request != nil);
-        
-        self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-        assert(self.connection != nil);
-		
-			// Tell the UI we're receiving.
-        
-        [self _receiveDidStart];
-    }
-}
-
-- (void)_stopReceiveWithStatus:(int)status
-	// Shuts down the connection and displays the result (statusString == nil) 
-	// or the error status (otherwise).
-{
-    if (self.connection != nil) {
-        [self.connection cancel];
-        self.connection = nil;
-		
-    }
-	if (receivedData != nil) {
-        receivedData = nil;
-		
-    }
-		
-}
-
-- (void)connection:(NSURLConnection *)theConnection didReceiveResponse:(NSURLResponse *)response
-	// A delegate method called by the NSURLConnection when the request/response 
-	// exchange is complete.  We look at the response to check that the HTTP 
-	// status code is 2xx and that the Content-Type is acceptable.  If these checks 
-	// fail, we give up on the transfer.
-{
-		
-		NSString *          contentTypeHeader;
-		
-		NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse *) response;
-		assert( [httpResponse isKindOfClass:[NSHTTPURLResponse class]] );
-		//NSLog(@"didReceiveResponse: %@ statusCode: %i", [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode], httpResponse.statusCode);
-		if ((httpResponse.statusCode / 100) != 2) {
-				//[self _stopReceiveWithStatus:[httpResponse statusCode]];
-		} else {
-			
-		}
-		
-	
-	[receivedData setLength:0];
-}
-
-- (void)connection:(NSURLConnection *)theConnection didReceiveData:(NSData *)data
-	// A delegate method called by the NSURLConnection as data arrives.  We just 
-	// write the data to the file.
-{
-
-	[receivedData appendData:data];
-}
-
-- (void)connection:(NSURLConnection *)theConnection didFailWithError:(NSError *)error
-	// A delegate method called by the NSURLConnection if the connection fails. 
-	// We shut down the connection and display the failure.  Production quality code 
-	// would either display or log the actual error.
-{
-#pragma unused(theConnection)
-#pragma unused(error)
-    assert(theConnection == self.connection);
-    
-    [self _stopReceiveWithStatus:-1];
-	[receivedData release];
-}
-
-
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)theConnection
-	// A delegate method called by the NSURLConnection when the connection has been 
-	// done successfully.  We shut down the connection with a nil status, which 
-	// causes the image to be displayed.
-{
-	
-#pragma unused(theConnection)
-    assert(theConnection == self.connection);
-    
-	NSString *datString = [[NSString alloc] initWithData:receivedData  encoding:NSUTF8StringEncoding];
-	
-	self._returnDataAsString = [datString copy];
-	
-	[datString release];
-
-	
-    [self _stopReceiveWithStatus:0];
-	[self _receiveDidStopWithStatus:0];
-}
-
-#pragma mark * UI Actions
-
-- (void)getOrCancelAction:(id)sender
-{
-#pragma unused(sender)
-    if (self.isReceiving) {
-        [self _stopReceiveWithStatus:0];
-    } else {
-        [self _startReceive];
-    }
-}
-
-
+//http://cydia.saurik.com/tss@home/api/check/%llu <--ecid
 
 
 - (void)dealloc {
-    [self _stopReceiveWithStatus:0];
-	
 	
     [super dealloc];
 }

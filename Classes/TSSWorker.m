@@ -11,7 +11,24 @@
 
 @implementation TSSWorker
 
-@synthesize savedBuilds, queueNumber, currentIndex, currentBuild, queuedBuilds;
+
+void MyLogIt (NSString *format, ...)
+{
+    va_list args;
+	
+    va_start (args, format);
+	
+    NSString *string;
+	
+    string = [[NSString alloc] initWithFormat: format  arguments: args];
+	
+    va_end (args);
+	
+    printf ("%s", [string UTF8String]);
+	
+    [string release];
+	
+} // LogIt
 
 - (void)theWholeShebang
 {
@@ -59,7 +76,7 @@
 	
 	[man release];
 	
-	LogIt(@"Done!!\n\n");
+	MyLogIt(@"Done!!\n\n");
 	
 }
 
@@ -85,120 +102,6 @@
 	return [fetchList autorelease];
 }
 
-
-- (void)fetchSavedFirmwares //start here
-{
-	//LOG_SELF
-	TSSManager *theMan = [[TSSManager alloc] initWithMode:kTSSCydiaBlobListing];
-	[theMan setDelegate:self];
-		//[theMan _receiveVersion:@"9B5127c"];
-	[theMan autorelease];
-}
-
-- (void)fetchSavedFirmwaresSolo //start here
-{
-	//LOG_SELF
-	TSSManager *theMan = [[TSSManager alloc] initWithMode:kTSSCydiaBlobListingSolo];
-	[theMan setDelegate:self];
-	//[theMan _receiveVersion:@"9B5127c"];
-	[theMan autorelease];
-}
-
-
-- (void)processorDidFinish:(id)processor withStatus:(int)status
-{
-	//LOG_SELF
-		//NSLog(@"%@", [processor ecid]);
-	
-	id object = nil;
-	id man2 = nil;
-	
-	
-	switch ([processor mode]) {
-			
-		case kTSSSendBlobToCydia:
-			
-			NSLog(@"sending blob, dont try to process!: %@", [processor _returnDataAsString]);
-			
-				/* 
-				 
-				 here we need to see what index and count we are at for the queue, if we are not at the end we need to initiate the next round.
-			
-				 */
-
-			
-			//NSLog(@"currentBuild: %@ queuedBuilds: %@, count: %i", self.currentBuild, self.queuedBuilds, self.queueNumber);
-			self.currentIndex++;
-			
-			if (self.currentIndex >= self.queueNumber)
-			{
-				//NSLog(@"we are at the end!");
-			} else {
-				processor = nil;
-				
-				//NSLog(@"still more to go!");
-				
-				
-				self.currentBuild = [[self queuedBuilds] objectAtIndex:self.currentIndex];
-				
-				//NSLog(@"nextBuild: %@", self.currentBuild);
-				
-				TSSManager *theMan = [[TSSManager alloc] initWithMode:kTSSFetchBlobFromApple];
-				[theMan setDelegate:self];
-				[theMan _receiveVersion:self.currentBuild];
-				[theMan autorelease];
-			}
-			
-			return;
-			
-			
-		case kTSSFetchBlobFromApple:
-			
-				//object = [TSSManager blobPathFromString:[processor _returnDataAsString] andEcid:[processor ecid]];
-			
-			
-			//NSLog(@"currentBuild: %@", self.currentBuild);
-			
-			object = [TSSManager rawBlobFromResponse:[processor _returnDataAsString]];
-			
-			//object = [TSSManager blobPathFromString:[processor _returnDataAsString] andEcid:[processor ecid] andBuild:self.currentBuild];
-				
-				//NSLog(@"blob: %@", object);
-				//man2 = [[TSSManager alloc] initWithMode:kTSSSendBlobToCydia];
-				//[man2 setDelegate:self];
-				//[man2 _pushBlob:object];
-				//[man2 autorelease];
-			[processor setMode:kTSSSendBlobToCydia];
-			[processor _pushBlob:object];
-			break;
-			
-		case kTSSFetchBlobFromCydia:
-			
-			//NSLog(@"kTSSFetchBlobFromCydia");
-			break;
-			
-		case kTSSCydiaBlobListing:
-			
-				//NSLog(@"blob listing: %@", [processor _returnDataAsString]);
-			object = [TSSManager blobArrayFromString:[processor _returnDataAsString]];
-			
-			//NSLog(@"blob list: %@", object);
-			
-			[self setSavedBuilds:object];
-			[self fetchAvailableFirmwares];
-			break;
-			
-		case kTSSCydiaBlobListingSolo:
-			
-			object = [TSSManager blobArrayFromString:[processor _returnDataAsString]];
-			
-			NSLog(@"%@", object);
-			
-			
-			break;
-	}
-	
-}
 
 /*
  
@@ -227,76 +130,12 @@
 }
 
 
-- (void)fetchAvailableFirmwares
-{
-	//LOG_SELF
-		//create a final list of versions that we will attempt to fetch from apple
-	
-	NSMutableArray *fetchList = [[NSMutableArray alloc] init];
-	
-	NSArray *avail = [TSSManager signableVersions]; //the versions we still report that can be signed from apple, from a plist we maintain
-	
-	NSArray *signedFW = self.savedBuilds; //we create this list earlier, this array has full dictionaries
-	
-	//NSLog(@"signedFw: %@", signedFW);
-	
-	NSArray *trimmedList = [self buildsFromList:signedFW]; //this SHOULD cuts the array down to single string objects of JUST the "build" key
-//	NSLog(@"trimmedList: %@", trimmedList);
-	
-	for (id currentFW in avail)
-	{
-			//see if the trimmed list contains our current build, if it does, dont add, otherwise, add.
-		
-	
-		if (![trimmedList containsObject:currentFW])
-		{
-			[fetchList addObject:currentFW];
-		}
-		
-	}
-	
-	self.queuedBuilds = [fetchList autorelease];
-	self.queueNumber = [fetchList count];
-	self.currentIndex = 0;
-	self.currentBuild = [fetchList objectAtIndex:0];
-		//cycle through these firmwares and fetch the blob from apple then send it to cydia
-	
-//	NSLog(@"currentBuild: %@ queuedBuilds: %@, count: %i", self.currentBuild, self.queuedBuilds, self.queueNumber);
-	
-	for (id fw in self.queuedBuilds)
-	{
-		TSSManager *theMan = [[TSSManager alloc] initWithMode:kTSSFetchBlobFromApple];
-		[theMan setDelegate:self];
-		[theMan _receiveVersion:self.currentBuild];
-		[theMan autorelease];
-	}
-	
-	
-}
-
 - (void)dealloc
 {
-	[savedBuilds release];
-	[currentBuild release];
+
 	[super dealloc];
 }
 
-void MyLogIt (NSString *format, ...)
-{
-    va_list args;
-	
-    va_start (args, format);
-	
-    NSString *string;
-	
-    string = [[NSString alloc] initWithFormat: format  arguments: args];
-	
-    va_end (args);
-	
-    printf ("%s", [string UTF8String]);
-	
-    [string release];
-	
-} // LogIt
+
 
 @end

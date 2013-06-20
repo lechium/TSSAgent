@@ -15,11 +15,31 @@
 #import "TSSManager.h"
 #import "TSSWorker.h"
 
+void LogIt (NSString *format, ...)
+{
+    va_list args;
+	
+    va_start (args, format);
+	
+    NSString *string;
+	
+    string = [[NSString alloc] initWithFormat: format  arguments: args];
+	
+    va_end (args);
+	
+    printf ("%s", [string UTF8String]);
+	
+    [string release];
+	
+} // LogIt
+
 int main (int argc, const char * argv[]) {
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	//LogIt(@"argc: %i\n", argc);
 	setuid(0);
 
+    //im sure there is a better way to print out usage and have it fill the lines its supposed to / wrap properly, but oh well ;-P
+    
 	if (argc <= 1)
 	{
 		LogIt(@"\n");
@@ -35,8 +55,6 @@ int main (int argc, const char * argv[]) {
 	}
 	
 	NSString *value = nil;
-
-		//NSString *path = [NSString stringWithUTF8String:argv[0]];
 	NSString *option = [NSString stringWithUTF8String:argv[1]];
 	
 	if (argc >= 3)
@@ -52,7 +70,6 @@ int main (int argc, const char * argv[]) {
 			}
 			NSString *string = [man stringFromDictionary:blobs];
 			[man autorelease];
-			
 			LogIt(@"%@", string);
 			[pool release];
 			return 0;
@@ -101,57 +118,29 @@ int main (int argc, const char * argv[]) {
 			
 			TSSManager *man = [[TSSManager alloc] initWithMode:kTSSFetchBlobFromApple];
 			NSString *theBlob = [man _synchronousReceiveVersion:value];
-			
 			LogIt(@"%@", theBlob);
-			
 			[man _synchronousPushBlob:theBlob];
-			
-			
+            
 			[man autorelease];
-			
-			
-			
 			[pool release];
 			return 0;
 			
-		} else if ([option isEqualToString:@"-1337"])
+		} else if ([option isEqualToString:@"-1337"]) //runs the whole process of fetching all available and pushing them all to sauriks server.
 		{
 			NSLog(@"Processing blobs...\n\n");
 			TSSWorker *worker = [[TSSWorker alloc] init];
 			[worker theWholeShebang];
-			
 			[worker autorelease];
-			
 			[pool release];
-			
 			return 0;
 			
 		} else if ([option isEqualToString:@"-debug"])
 		{
-			
 			NSNumber *theValue = [NSNumber numberWithBool:[TSSCommon internetAvailable]];
 			NSLog(@"internet available: %@", theValue);
 		}
-	//}
 	
 	[pool release];
     return 0;
 }
 
-void LogIt (NSString *format, ...)
-{
-    va_list args;
-	
-    va_start (args, format);
-	
-    NSString *string;
-	
-    string = [[NSString alloc] initWithFormat: format  arguments: args];
-	
-    va_end (args);
-	
-    printf ("%s", [string UTF8String]);
-	
-    [string release];
-	
-} // LogIt

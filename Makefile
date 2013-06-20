@@ -1,8 +1,8 @@
 GO_EASY_ON_ME=1
 FW_DEVICE_IP=apple-tv.local
-export SDKVERSION=4.3
+export SDKVERSION=5.1
 TOOL_NAME := TSSAgent
-TSSAgent_FILES = Classes/TSSHelper.m Classes/TSSCommon.m Classes/TSSManager.mm
+TSSAgent_FILES = Classes/JSONKit.m Classes/TSSHelper.m Classes/TSSCommon.m Classes/TSSManager.mm
 TSSAgent_FILES += Classes/TSSWorker.m Classes/Reachability.m
 TSSAgent_PACKAGE_TARGET_DIR = /usr/bin
 TSSAgent_LDFLAGS = -framework CoreFoundation -framework IOKit -framework Foundation -framework SystemConfiguration -undefined dynamic_lookup #-framework BackRow

@@ -13,7 +13,7 @@ Currently this is targeted for the AppleTV but it could definitely be expanded t
 
 yes i am that lazy to just paste the usage output as part of the readme.
 
-anyhow, if you want to build this you need to copy IOKit into $THEOS/include (the local copy of theos if checked out in this folder may not cut it…)
+anyhow, if you want to build this you need to copy IOKit into $THEOS/include (the local copy of theos if checked out in this folder will not cut it…)
 
 after you make sure that folder is copied
 
