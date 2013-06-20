@@ -49,14 +49,11 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 
 @interface TSSManager : NSObject {
 
-	NSString *					baseUrlString;
-	NSString *					ecid;
-	int							mode;
-	TSSDeviceID					theDevice;
+
 }
 
-@property (readwrite, assign) TSSDeviceID theDevice;
-@property (readwrite, assign) int mode;
+@property (readwrite, assign) TSSDeviceID theDevice; ///keep track of the device
+@property (readwrite, assign) int mode; ///current mode we are running in, probably not needed anymore
 @property (nonatomic, assign) NSString *baseUrlString;
 @property (nonatomic, assign) NSString *ecid;
 
@@ -68,6 +65,7 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 
 - (void)logDevice:(TSSDeviceID)inputDevice; ///debug method to log out the current device easily
 
+- (id)dictionaryFromString:(NSString *)theString;
 - (NSString *)stringFromDictionary:(id)theDict; ///convenience function that may be better suited to be in TSSCommon
 
 - (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion; ///synchronously receieve a blob from cydia

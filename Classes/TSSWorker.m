@@ -66,13 +66,20 @@ void MyLogIt (NSString *format, ...)
 		MyLogIt(@"fetching version: %@...\n\n", fw);
 		
 		NSString *theBlob = [man _synchronousReceiveVersion:fw];
+        
+        NSDictionary *theBlobDict = [man dictionaryForString:theBlob];
+        
+        int keyCount = [[theBlobDict allKeys] count];
+        
+        if (keyCount >= 21)
+		{
+            MyLogIt(@"pushing version: %@...\n\n", fw);
 		
-		MyLogIt(@"pushing version: %@...\n\n", fw);
+            NSString *returns = [man _synchronousPushBlob:theBlob];
 		
-		NSString *returns = [man _synchronousPushBlob:theBlob];
-		
-		MyLogIt(@"%@\n\n", returns);
-	}
+            MyLogIt(@"%@\n\n", returns);
+        }
+    }
 	
 	[man release];
 	

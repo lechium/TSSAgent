@@ -383,7 +383,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 /*
  
- we use this to convert and NSDictionary (the dictionary we got from the initial string) into a string.
+ we use this to convert an NSDictionary (the dictionary we got from the initial string) into a string.
  
  */
 
@@ -393,6 +393,24 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:theDict format:kCFPropertyListXMLFormat_v1_0 errorDescription:&error];
 	NSString *s=[[NSString alloc] initWithData:xmlData encoding: NSUTF8StringEncoding];
 	return [s autorelease];
+}
+
+/*
+ 
+ we use this to convert a raw dictionary plist string into a proper NSDictionary
+ 
+ */
+
+- (id)dictionaryFromString:(NSString *)theString
+{
+	NSString *error = nil;
+	NSPropertyListFormat format;
+	NSData *theData = [theString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+	id theDict = [NSPropertyListSerialization propertyListFromData:theData
+												  mutabilityOption:NSPropertyListImmutable
+															format:&format
+												  errorDescription:&error];
+	return theDict;
 }
 
 /*
