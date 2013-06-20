@@ -515,7 +515,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 		NSLog(@"no internet available, should we bail?!");
         //	return nil
 	}
-
+    
 	// First get and check the URL.
     
 	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/check/%@", ChipID_];
@@ -532,7 +532,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
         [datString release];
         return nil;
     }
-
+    
     //NSArray *blobArray = [TSSManager blobArrayFromString:datString];
     NSArray *blobArray = [datString objectFromJSONString];
     [datString release];
@@ -552,9 +552,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 		
 		NSLog(@"no internet available, should we bail?!");
         //	return nil;
-		
 	}
-	
     NSMutableURLRequest *      request;
 	TSSDeviceID cd = self.theDevice;
 	baseUrlString = [NSString stringWithFormat:@"http://cydia.saurik.com/tss@home/api/store/%i/%i/%@", cd.chipID, cd.boardID, ChipID_];
@@ -572,7 +570,7 @@ static NSString *CYDHex(NSData *data, bool reverse) {
     
 }
 
-/* 
+/*
  
  fetch the specified blob version from cydias servers
  

@@ -57,26 +57,43 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 @property (nonatomic, assign) NSString *baseUrlString;
 @property (nonatomic, assign) NSString *ecid;
 
-+ (NSString *)rawBlobFromResponse:(NSString *)inputString; ///the response string typically has information delimited by ampersands and at the end there is the raw plist data, this returns just the raw blob data
-+ (TSSDeviceID)currentDevice; ///the current device we are running on, in an easy to use struct for constructing plist responses
-+ (NSArray *)signableVersions; ///the versions apple is currently signing
-+ (NSArray *)blobArrayFromString:(NSString *)theString; ///the array of blobs the user has on file, parsed from the initial JSON string
-+ (NSString *)ipAddress; ///current user IP address
+///the response string typically has information delimited by ampersands and at the end there is the raw plist data, this returns just the raw blob data
++ (NSString *)rawBlobFromResponse:(NSString *)inputString;
+///the current device we are running on, in an easy to use struct for constructing our plist responses
++ (TSSDeviceID)currentDevice;
+///the versions apple is currently signing
++ (NSArray *)signableVersions;
+///the array of blobs the user has on file, parsed from the initial JSON string, should be obsolete now by using JSONKit
++ (NSArray *)blobArrayFromString:(NSString *)theString;
+///current user IP address
++ (NSString *)ipAddress; 
 
-- (void)logDevice:(TSSDeviceID)inputDevice; ///debug method to log out the current device easily
+///debug method to log out the current device easily
+- (void)logDevice:(TSSDeviceID)inputDevice; 
 
+///convenience function to create a proper NSDictionary from its raw string representation, also probably belongs in TSSCommon
 - (id)dictionaryFromString:(NSString *)theString;
-- (NSString *)stringFromDictionary:(id)theDict; ///convenience function that may be better suited to be in TSSCommon
+///convenience function that may be better suited to be in TSSCommon, converts a proper NSDictionary to raw string representant
+- (NSString *)stringFromDictionary:(id)theDict;
 
-- (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion; ///synchronously receieve a blob from cydia
+///synchronously recieve a blob from cydia
+- (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion;
+///synchronously push a blob to cydia
 - (NSString *)_synchronousPushBlob:(NSString *)theBlob;
+///synchronously receieve a blob from apple
 - (NSString *)_synchronousReceiveVersion:(NSString *)theVersion;
+///synchronously check for a blob listing
 - (NSArray *)_synchronousBlobCheck;
 
+///the post request to fetch the list of blobs that are already saved on sauriks server
 - (NSMutableURLRequest *)requestForList;
+///post request to push a blob
 - (NSMutableURLRequest *)requestForBlob:(NSString *)theBlob;
+///post request to fetch a blob
 - (NSMutableURLRequest *)postRequestFromVersion:(NSString *)theVersion;
+///used in postRequestFromVersion, grab the build manifest that is associated with this particular version from our plist online
 - (NSDictionary *)tssDictFromVersion:(NSString *)versionNumber;
+///the init method that is always used to instantiate this class.
 - (id)initWithMode:(int)theMode;
 
 

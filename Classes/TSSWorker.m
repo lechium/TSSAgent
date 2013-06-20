@@ -37,9 +37,9 @@ void MyLogIt (NSString *format, ...)
 	 1. grab available blob listing from cydia
 	 2. get signing list from wherever
 	 3. cycle through filtered array grabbing blob from apple then sending to cydia
-	
+     
 	 */
-
+    
 	
 	if ([TSSCommon internetAvailable] == FALSE)
 	{
@@ -54,7 +54,7 @@ void MyLogIt (NSString *format, ...)
 	NSArray *blobs = [man _synchronousBlobCheck];
 	
 	if (blobs == nil);
-		//MyLogIt(@"no blobs saved!!!\n");
+    //MyLogIt(@"no blobs saved!!!\n");
 	
 	MyLogIt(@"filtering list...\n\n");
 	NSArray *filteredList = [self filteredList:blobs];
@@ -74,9 +74,9 @@ void MyLogIt (NSString *format, ...)
         if (keyCount >= 21)
 		{
             MyLogIt(@"pushing version: %@...\n\n", fw);
-		
+            
             NSString *returns = [man _synchronousPushBlob:theBlob];
-		
+            
             MyLogIt(@"%@\n\n", returns);
         }
     }
@@ -139,7 +139,7 @@ void MyLogIt (NSString *format, ...)
 
 - (void)dealloc
 {
-
+    
 	[super dealloc];
 }
 
