@@ -27,12 +27,20 @@ done and done.
 
 Some notes on the development of this project.
 
-If there are any build errors it could be because the variable export SDKVERSION=5.1 in the Make file is trying to point towards the 5.1 SDK, if that is missing it wont work and will need to be pointed to a newer version.
+If there are any build errors it could be because the variable export SDKVERSION=5.1 in the Make file is trying to point 
+towards the 5.1 SDK, if that is missing it wont work and will need to be pointed to a newer version.
 
-Memory management is done manually because ARC is not available across all appletv versions and im comfortable enough with memory management that I see no benefit in convoluting the code to have ARC compliance when supported, and releasing when unsupported.
+Memory management is done manually because ARC is not available across all appletv versions and im comfortable enough 
+with memory management that I see no benefit in convoluting the code to have ARC compliance when supported, and releasing
+when unsupported.
 
-Currently it only supports the AppleTV 2 because the plist we manage online ONLY has build manifests for AppleTV2 versions, doing anything further would be way too much, plus it would be kind of useless and redundant since Cydia does the same thing on all other iOS devices.
+Currently it only supports the AppleTV 2 because the plist we manage online ONLY has build manifests for AppleTV2
+versions, doing anything further would be way too much, plus it would be kind of useless and redundant since Cydia does 
+the same thing on all other iOS devices.
 
-It uses JSONKit rather than the Apple JSON serialization classes because those were not introduced until 5.0 if i recall correctly, and i wanted it to work on ALL firmwares from 4.x-6.x+
+It uses JSONKit rather than the Apple JSON serialization classes because those were not introduced until 5.0 if i recall 
+correctly, and i wanted it to work on ALL firmwares from 4.x-6.x+
 
-The Xcode project was just recently added to make coding of the project easier to manage, it says OS X SDK 10.8 but is really a foundation CLI tool that runs on iOS devices using an external build system and the brilliant theos project by Dustin Howett.
+The Xcode project was just recently added to make coding of the project easier to manage, it says OS X SDK 10.8 but is 
+really a foundation CLI tool that runs on iOS devices using an external build system and the brilliant theos project by 
+Dustin Howett.
