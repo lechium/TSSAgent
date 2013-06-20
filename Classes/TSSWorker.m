@@ -67,7 +67,7 @@ void MyLogIt (NSString *format, ...)
 		
 		NSString *theBlob = [man _synchronousReceiveVersion:fw];
         
-        NSDictionary *theBlobDict = [man dictionaryForString:theBlob];
+        NSDictionary *theBlobDict = [man dictionaryFromString:theBlob];
         
         int keyCount = [[theBlobDict allKeys] count];
         
