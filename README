@@ -13,7 +13,7 @@ Currently this is targeted for the AppleTV but it could definitely be expanded t
 
 yes i am that lazy to just paste the usage output as part of the readme.
 
-anyhow, if you want to build this you need to copy IOKit into $THEOS/include (the local copy of theos if checked out in this folder will not cut itÉ)
+anyhow, if you want to build this you need to copy IOKit into $THEOS/include (the local copy of theos if checked out in this folder will not cut itï¿½)
 
 after you make sure that folder is copied
 
@@ -26,6 +26,8 @@ done and done.
 ----
 
 Some notes on the development of this project.
+
+If there are any build errors it could be because the variable export SDKVERSION=5.1 in the Make file is trying to point towards the 5.1 SDK, if that is missing it wont work and will need to be pointed to a newer version.
 
 Memory management is done manually because ARC is not available across all appletv versions and im comfortable enough with memory management that I see no benefit in convoluting the code to have ARC compliance when supported, and releasing when unsupported.
 
