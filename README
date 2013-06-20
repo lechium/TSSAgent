@@ -32,3 +32,5 @@ Memory management is done manually because ARC is not available across all apple
 Currently it only supports the AppleTV 2 because the plist we manage online ONLY has build manifests for AppleTV2 versions, doing anything further would be way too much, plus it would be kind of useless and redundant since Cydia does the same thing on all other iOS devices.
 
 It uses JSONKit rather than the Apple JSON serialization classes because those were not introduced until 5.0 if i recall correctly, and i wanted it to work on ALL firmwares from 4.x-6.x+
+
+The Xcode project was just recently added to make coding of the project easier to manage, it says OS X SDK 10.8 but is really a foundation CLI tool that runs on iOS devices using an external build system and the brilliant theos project by Dustin Howett.
