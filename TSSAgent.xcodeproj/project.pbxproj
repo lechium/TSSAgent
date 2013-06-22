@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		324EF0BE1776342F00E0A3F3 /* TSSCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSSCategories.h; sourceTree = "<group>"; };
+		324EF0BF1776342F00E0A3F3 /* TSSCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSSCategories.m; sourceTree = "<group>"; };
 		32D6E14217739F7F00BD52A8 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		32D6E14317739F7F00BD52A8 /* Reachability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		32D6E14417739F7F00BD52A8 /* Reachability.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
@@ -48,6 +50,8 @@
 				32D6E14917739F7F00BD52A8 /* TSSManager.mm */,
 				32D6E14A17739F7F00BD52A8 /* TSSWorker.h */,
 				32D6E14B17739F7F00BD52A8 /* TSSWorker.m */,
+				324EF0BE1776342F00E0A3F3 /* TSSCategories.h */,
+				324EF0BF1776342F00E0A3F3 /* TSSCategories.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";

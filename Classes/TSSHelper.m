@@ -14,6 +14,7 @@
 #import "TSSCommon.h"
 #import "TSSManager.h"
 #import "TSSWorker.h"
+#import "TSSCategories.h"
 
 /**
  
@@ -74,7 +75,7 @@ int main (int argc, const char * argv[]) {
         {
             LogIt(@"No Blobs Saved!");
         }
-        NSString *string = [man stringFromDictionary:blobs];
+        NSString *string = [blobs stringFromArray];
         [man autorelease];
         LogIt(@"%@", string); //print the blob listing
         [pool release];
@@ -92,6 +93,7 @@ int main (int argc, const char * argv[]) {
         NSString *theBlob = [man _synchronousReceiveVersion:value];
         [man autorelease];
         
+		if (theBlob != nil)
         LogIt(@"%@", theBlob); //print the raw blob output
         
         [pool release];
@@ -109,6 +111,7 @@ int main (int argc, const char * argv[]) {
         NSString *theBlob = [man _synchronousCydiaReceiveVersion:value];
         [man autorelease];
         
+		if (theBlob != nil)
         LogIt(@"%@", theBlob);
         
         [pool release];

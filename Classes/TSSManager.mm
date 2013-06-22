@@ -18,8 +18,11 @@
 #include <sys/types.h>
 #import "TSSCommon.h"
 #import "JSONKit.h"
+#import "TSSCategories.h"
 
 //not sure why foundation isnt picking this up, keep the compiler from complaining
+
+
 
 @interface NSHost : NSObject {
     
@@ -98,70 +101,26 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 @implementation TSSManager
 
+void TSSLog (NSString *format, ...)
+{
+    va_list args;
+	
+    va_start (args, format);
+	
+    NSString *string;
+	
+    string = [[NSString alloc] initWithFormat: format  arguments: args];
+	
+    va_end (args);
+	
+    printf ("%s", [string UTF8String]);
+	
+    [string release];
+	
+} // LogIt
+
 @synthesize baseUrlString, ecid, mode, theDevice;
 
-/*
- 
- [{"model": "AppleTV2,1", "chip": 35120, "firmware": "4.2", "board": 16, "build": "8C150"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.2.1", "board": 16, "build": "8C154"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.3", "board": 16, "build": "8F191m"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.3.1", "board": 16, "build": "8F202"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.3~b1", "board": 16, "build": "8F5148c"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.3~b2", "board": 16, "build": "8F5153d"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.3~b3", "board": 16, "build": "8F5166b"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": "4.1", "board": 16, "build": "8M89"}, {"model": "AppleTV2,1", "chip": 35120, "firmware": null, "board": 16, "build": "9A406a"}]
- 
- 
- 1. separate by "}," (then remove [{)
- 
- [{"model": "AppleTV2,1", "chip": 35120, "firmware": "4.2", "board": 16, "build": "8C150"
- 
- 2. separate by ", "
- 
- "model": "AppleTV2,1"
- 
- 3. separate by :
- 
- "model"
- 
- 4. set object 1 of array3 as key
- 
- 5. add final dictionary to full array
- 
- 6. return
- 
- 
- */
-
-//this should now be obsolete, still needs actual testing
-
-+ (NSArray *)blobArrayFromString:(NSString *)theString
-{
-	if ([[theString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@"[]"])
-	{
-		return nil;
-	}
-	NSMutableString *stripped = [[NSMutableString alloc] initWithString:theString];
-	[stripped replaceOccurrencesOfString:@"[" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stripped length])];
-	[stripped replaceOccurrencesOfString:@"{" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stripped length])];
-	[stripped replaceOccurrencesOfString:@"\"" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stripped length])];
-	
-	NSMutableArray *blobArray = [[NSMutableArray alloc] init];
-	
-	NSArray *fullArray = [stripped componentsSeparatedByString:@"},"]; //1.
-	for (id currentBlob in fullArray)
-	{
-		NSArray *keyItems = [currentBlob componentsSeparatedByString:@", "]; //2.
-		NSMutableDictionary *theDict = [[NSMutableDictionary alloc] init];
-		for (id currentKey in keyItems)
-		{
-			NSArray *keyObjectArray = [[currentKey stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\"}]"]] componentsSeparatedByString:@":"]; //3.
-			NSString *theObject = [[keyObjectArray objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			NSString *theKey = [[keyObjectArray objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			[theDict setObject:theObject forKey:theKey];	//4.
-		}
-		
-		[blobArray addObject:[theDict autorelease]]; //5.
-		
-	}
-	[stripped release];
-	stripped = nil;
-	return [blobArray autorelease];
-	
-}
 
 //obsolete
 
@@ -275,17 +234,46 @@ static NSString *CYDHex(NSData *data, bool reverse) {
     
 	NSArray *componentArray = [inputString componentsSeparatedByString:@"&"];
 	int count = [componentArray count];
-    //	int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
-    //	NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
-	if (count >= 3)
+		//NSLog(@"count: %i array: %@", count, componentArray);
+    if (count >= 3)
 	{
 		NSString *plist = [[componentArray objectAtIndex:2] substringFromIndex:15];
-		return plist;
-	} else {
 		
-		NSLog(@"probably failed: %@ count: %i", componentArray, count);
+			//make sure the plist has 21+ keys
 		
-		return nil;
+		NSArray *allKeys = [[plist dictionaryFromString] allKeys];
+		if ([allKeys count] >= 21)
+		{	
+			return plist;
+	
+		} else { // we are short on keys, probably just an APTicket
+			
+
+			TSSLog(@"\nTSSAgent SHSH blob fetch failed. The firmware file was incomplete.\n\n");
+			return nil;
+		}
+	
+		
+			
+		} else {
+		
+		/*
+		 
+		 (
+		 "STATUS=94",
+		 "MESSAGE=This device isn't eligible for the requested build."
+		 )
+		 
+		 */
+
+		if (count == 2)
+		{
+			int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
+			NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
+			TSSLog(@"\nTSSAgent SHSH blob fetch failed with status '%i' and message '%@'\n\n", status, message);
+		}
+		
+	    return nil;
 	}
 	
 	
@@ -383,38 +371,6 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 
 /*
  
- we use this to convert an NSDictionary (the dictionary we got from the initial string) into a string.
- 
- */
-
-- (NSString *)stringFromDictionary:(id)theDict
-{
-	NSString *error = nil;
-	NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:theDict format:kCFPropertyListXMLFormat_v1_0 errorDescription:&error];
-	NSString *s=[[NSString alloc] initWithData:xmlData encoding: NSUTF8StringEncoding];
-	return [s autorelease];
-}
-
-/*
- 
- we use this to convert a raw dictionary plist string into a proper NSDictionary
- 
- */
-
-- (id)dictionaryFromString:(NSString *)theString
-{
-	NSString *error = nil;
-	NSPropertyListFormat format;
-	NSData *theData = [theString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
-	id theDict = [NSPropertyListSerialization propertyListFromData:theData
-												  mutabilityOption:NSPropertyListImmutable
-															format:&format
-												  errorDescription:&error];
-	return theDict;
-}
-
-/*
- 
  the url request to fetch a particular version from apple for the SHSH blob
  
  */
@@ -425,7 +381,8 @@ static NSString *CYDHex(NSData *data, bool reverse) {
 	self.ecid = [theDict valueForKey:@"ApECID"];
     [ecid retain]; //crashes for some reason if we dont retain here
     
-	NSString *post = [self stringFromDictionary:theDict]; //convert the nsdictionary into a string we can submit
+	NSString *post = [theDict stringFromDictionary]; //convert the nsdictionary into a string we can submit
+	
 	NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]; //convert string to NSData that can be used as the HTTPBody of the POST
 	
 	NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
@@ -533,7 +490,6 @@ static NSString *CYDHex(NSData *data, bool reverse) {
         return nil;
     }
     
-    //NSArray *blobArray = [TSSManager blobArrayFromString:datString];
     NSArray *blobArray = [datString objectFromJSONString];
     [datString release];
     return blobArray;

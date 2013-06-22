@@ -96,14 +96,14 @@
 	return [[TSSCommon stringReturnForProcess:@"/usr/bin/sw_vers -buildVersion"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
-@class ATVVersionInfo;
+	//@class ATVVersionInfo;
 
 + (NSString *)osBuildATV ///obsolete
 {
 	Class cls = NSClassFromString(@"ATVVersionInfo"); //FIXME: obviously this cant be okay since we need it to be device agnostic maybe someday
 	if (cls != nil)
 	{
-		return [ATVVersionInfo currentOSBuildVersion];
+		return [cls currentOSBuildVersion];
 	}
 	return nil;	
 }
@@ -157,5 +157,7 @@
 	}
 	return nil;	
 }
+
+
 
 @end

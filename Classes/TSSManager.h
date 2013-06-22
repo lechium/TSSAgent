@@ -15,8 +15,8 @@
 
 #import <Foundation/Foundation.h>
 
-	//#define BLOB_PLIST_URL @"http://nitosoft.com/ATV2/install/k66ap.plist"
-#define BLOB_PLIST_URL @"http://files.firecore.com/FW/k66ap.plist"
+#define BLOB_PLIST_URL @"http://nitosoft.com/ATV2/install/k66ap.plist"
+	//#define BLOB_PLIST_URL @"http://files.firecore.com/FW/k66ap.plist"
 
 enum {
 	
@@ -72,18 +72,11 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 + (TSSDeviceID)currentDevice;
 ///the versions apple is currently signing
 + (NSArray *)signableVersions;
-///the array of blobs the user has on file, parsed from the initial JSON string, should be obsolete now by using JSONKit
-+ (NSArray *)blobArrayFromString:(NSString *)theString;
 ///current user IP address
 + (NSString *)ipAddress; 
 
 ///debug method to log out the current device easily
 - (void)logDevice:(TSSDeviceID)inputDevice; 
-
-///convenience function to create a proper NSDictionary from its raw string representation, also probably belongs in TSSCommon
-- (id)dictionaryFromString:(NSString *)theString;
-///convenience function that may be better suited to be in TSSCommon, converts a proper NSDictionary to raw string representant
-- (NSString *)stringFromDictionary:(id)theDict;
 
 ///synchronously recieve a blob from cydia
 - (NSString *)_synchronousCydiaReceiveVersion:(NSString *)theVersion;
