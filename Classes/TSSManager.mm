@@ -249,7 +249,7 @@ void TSSLog (NSString *format, ...)
 		} else { // we are short on keys, probably just an APTicket
 			
 
-			TSSLog(@"\nTSSAgent SHSH blob fetch failed. The firmware file was incomplete.\n\n");
+			TSSLog(@"\n ERROR: TSSAgent SHSH blob retrieval failed. The firmware file was incomplete.\n\n");
 			return nil;
 		}
 	
@@ -270,7 +270,7 @@ void TSSLog (NSString *format, ...)
 		{
 			int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
 			NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
-			TSSLog(@"\nTSSAgent SHSH blob fetch failed with status '%i' and message '%@'\n\n", status, message);
+			TSSLog(@"\n ERROR: TSSAgent SHSH blob retrieval failed with status '%i' and message '%@'\n\n", status, message);
 		}
 		
 	    return nil;
