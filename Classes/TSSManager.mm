@@ -249,7 +249,7 @@ void TSSLog (NSString *format, ...)
 		} else { // we are short on keys, probably just an APTicket
 			
 
-			TSSLog(@"\n ERROR: TSSAgent SHSH blob retrieval failed. The firmware file was incomplete.\n\n");
+			TSSLog(@"ERROR: TSSAgent SHSH blob retrieval failed. The firmware file was incomplete.\n\n");
 			return nil;
 		}
 	
@@ -270,13 +270,20 @@ void TSSLog (NSString *format, ...)
 		{
 			int status = [[[[componentArray objectAtIndex:0] componentsSeparatedByString:@"="] lastObject] intValue];
 			NSString *message = [[[componentArray objectAtIndex:1] componentsSeparatedByString:@"="] lastObject];
-			TSSLog(@"\n ERROR: TSSAgent SHSH blob retrieval failed with status '%i' and message '%@'\n\n", status, message);
+			TSSLog(@"ERROR: TSSAgent SHSH blob retrieval failed with status '%i' and message '%@'\n\n", status, message);
 		}
 		
 	    return nil;
 	}
 	
 	
+}
+
++ (NSArray *)buildManifestList
+{
+	NSMutableArray *keyArray = [[[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:BLOB_PLIST_URL]] allKeys] mutableCopy];
+	[keyArray removeObject:@"openVersions"];
+	return [keyArray autorelease];
 }
 
 //obsolete, just leaving in here for some notes on output formatting

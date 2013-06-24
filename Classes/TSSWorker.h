@@ -20,7 +20,8 @@
 @interface TSSWorker : NSObject {
 	
 }
-
+///checks all the current versions we believe are signing and make sure they still are, giving back a detailed report.
+- (void)checkSigningStatus;
 ///fetches all the firmware versions that are currently signing, grabs the requisite blobs from apple stitches in build manifest, submits to sauriks server
 - (void)theWholeShebang;
 ///filters the list into versions we havent saved the blobs for yet, if we've already saved them, no reason to do it again

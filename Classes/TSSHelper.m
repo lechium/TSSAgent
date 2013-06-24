@@ -56,7 +56,9 @@ int main (int argc, const char * argv[]) {
 		LogIt(@"-v osBuildVersion \t fetches the SHSH blobs for version specified from apples servers. ie -v 8F455.\n");
 		LogIt(@"-c osBuildVersion \t fetches the SHSH blobs for version specified from sauriks's servers. ie -c 8F455.\n");
 		LogIt(@"-p osBuildVersion \t fetch the SHSH blob for the version specified AND pushes to sauriks server.\n");
-		LogIt(@"-1337 \t\t\t will fetch the versions that are still elgible to be signed and push them to sauriks server.\n\n");
+		LogIt(@"-1337 \t\t\t will fetch the versions that are still elgible to be signed and push them to sauriks server.\n");
+		LogIt(@"-s \t\t\t does a dry run, serves as an integrity check to the open version signing list.\n");
+		LogIt(@"-m \t\t\t lists the different build manifest versions that are served.\n\n");
 		return -1;
         
 	}
@@ -146,7 +148,18 @@ int main (int argc, const char * argv[]) {
     } else if ([option isEqualToString:@"-debug"])
     {
         NSNumber *theValue = [NSNumber numberWithBool:[TSSCommon internetAvailable]];
-        NSLog(@"internet available: %@", theValue);
+        LogIt(@"internet available: %@", theValue);
+		
+    } else if ([option isEqualToString:@"-m"])//list build manifest
+    {
+		LogIt(@"%@\n", [TSSManager buildManifestList]);
+    } else if ([option isEqualToString:@"-s"])//check signing status
+    {
+		TSSWorker *worker = [[TSSWorker alloc] init];
+        [worker checkSigningStatus];
+        [worker autorelease];
+        [pool release];
+		return 0;
     }
 	
 	[pool release];

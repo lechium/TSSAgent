@@ -98,6 +98,8 @@ static inline bool DeviceIDEqualToDevice(TSSDeviceID device1, TSSDeviceID device
 ///the init method that is always used to instantiate this class.
 - (id)initWithMode:(int)theMode;
 
++ (NSArray *)buildManifestList;
+
 
 @end
 

@@ -8,6 +8,7 @@
 
 #import "TSSWorker.h"
 #import "TSSCommon.h"
+#import "TSSCategories.h"
 
 @implementation TSSWorker
 
@@ -67,7 +68,7 @@ void MyLogIt (NSString *format, ...)
 		
 		NSString *theBlob = [man _synchronousReceiveVersion:fw];
         
-        NSDictionary *theBlobDict = [man dictionaryFromString:theBlob];
+        NSDictionary *theBlobDict = [theBlob dictionaryFromString];
         
         int keyCount = [[theBlobDict allKeys] count];
         
@@ -79,6 +80,63 @@ void MyLogIt (NSString *format, ...)
             
             MyLogIt(@"%@\n\n", returns);
         }
+    }
+	
+	[man release];
+	
+	MyLogIt(@"Done!!\n\n");
+	
+}
+
+- (void)checkSigningStatus
+{
+	/*
+	 
+	 1. grab available blob listing from cydia
+	 2. get signing list from wherever
+	 3. cycle through filtered array grabbing blob from apple then sending to cydia
+     
+	 */
+    
+	
+	if ([TSSCommon internetAvailable] == FALSE)
+	{
+		NSLog(@"internet is not available!, bail");
+		return;
+	}
+	
+	TSSManager *man = [[TSSManager alloc] initWithMode:kTSSFetchBlobFromApple];
+	
+	MyLogIt(@"synchronous blob check...\n\n");
+	
+	NSArray *blobs = [man _synchronousBlobCheck];
+	
+	if (blobs == nil);
+		//MyLogIt(@"no blobs saved!!!\n");
+	
+	MyLogIt(@"filtering list...\n\n");
+	NSArray *filteredList = [self filteredList:blobs];
+	
+	MyLogIt(@"processing versions...\n\n");
+	
+	for (id fw in filteredList)
+	{
+			//MyLogIt(@"checking version: %@...\n\n", fw);
+		
+		NSString *theBlob = [man _synchronousReceiveVersion:fw];
+        
+        NSDictionary *theBlobDict = [theBlob dictionaryFromString];
+        
+        int keyCount = [[theBlobDict allKeys] count];
+        
+        if (keyCount >= 21)
+		{
+            MyLogIt(@"%@ is still signing\n\n", fw);
+            
+		} else {
+			
+			MyLogIt(@"%@ is no longer signing!\n\n", fw);
+		}
     }
 	
 	[man release];
