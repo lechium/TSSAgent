@@ -242,7 +242,8 @@ void TSSLog (NSString *format, ...)
 			//make sure the plist has 21+ keys
 		
 		NSArray *allKeys = [[plist dictionaryFromString] allKeys];
-		if ([allKeys count] >= 21)
+       // NSLog(@"allKeys: %@", allKeys);
+		if ([allKeys count] >= 13)
 		{	
 			return plist;
 	
@@ -580,6 +581,7 @@ void TSSLog (NSString *format, ...)
     NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&theResponse error:nil];
     NSString *datString = [[NSString alloc] initWithData:returnData  encoding:NSUTF8StringEncoding];
     NSString *outString = [TSSManager rawBlobFromResponse:datString];
+   // NSLog(@"outString: %@", outString);
     [datString release];
     return outString;
     

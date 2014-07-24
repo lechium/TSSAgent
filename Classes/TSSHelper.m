@@ -49,6 +49,7 @@ int main (int argc, const char * argv[]) {
     
 	if (argc <= 1)
 	{
+        LogIt(@"SCIENCE!!!!");
 		LogIt(@"\n");
 		LogIt(@"AppleTV TSSAgent - a standalone solution for listing SHSH blobs, fetching SHSH blobs and submitting the blobs to saurik's SHSH server.\n\n");
 		LogIt(@"Currently this is targeted for the AppleTV but it could definitely be expanded to work with other devices, not that it's necessary.\n\n");
