@@ -61,7 +61,7 @@
 /* Begin PBXLegacyTarget section */
 		32D6E13B17739E9300BD52A8 /* TSSAgent */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = stage;
+			buildArgumentsString = "package install";
 			buildConfigurationList = 32D6E13E17739E9300BD52A8 /* Build configuration list for PBXLegacyTarget "TSSAgent" */;
 			buildPhases = (
 			);

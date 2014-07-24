@@ -1,6 +1,7 @@
 GO_EASY_ON_ME=1
-FW_DEVICE_IP=apple-tv.local
-export SDKVERSION=5.1
+FW_DEVICE_IP=10.1.50.48
+#FW_DEVICE_IP=testtv.local
+export SDKVERSION=6.1
 TOOL_NAME := TSSAgent
 TSSAgent_FILES = Classes/TSSCategories.m Classes/JSONKit.m Classes/TSSHelper.m Classes/TSSCommon.m Classes/TSSManager.mm
 TSSAgent_FILES += Classes/TSSWorker.m Classes/Reachability.m

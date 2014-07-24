@@ -49,8 +49,7 @@ int main (int argc, const char * argv[]) {
     
 	if (argc <= 1)
 	{
-        LogIt(@"SCIENCE!!!!");
-		LogIt(@"\n");
+     	LogIt(@"\n");
 		LogIt(@"AppleTV TSSAgent - a standalone solution for listing SHSH blobs, fetching SHSH blobs and submitting the blobs to saurik's SHSH server.\n\n");
 		LogIt(@"Currently this is targeted for the AppleTV but it could definitely be expanded to work with other devices, not that it's necessary.\n\n");
 		LogIt(@"-l \t\t\t lists all the SHSH blobs that are currently saved on sauriks server.\n");
@@ -131,8 +130,8 @@ int main (int argc, const char * argv[]) {
         TSSManager *man = [[TSSManager alloc] initWithMode:kTSSFetchBlobFromApple];
         NSString *theBlob = [man _synchronousReceiveVersion:value];
         LogIt(@"%@", theBlob);
-        [man _synchronousPushBlob:theBlob];
-        
+        NSString *response = [man _synchronousPushBlob:theBlob];
+        LogIt(@"\n\nSHSH blob submission %@\n\n", response);
         [man autorelease];
         [pool release];
         return 0;
