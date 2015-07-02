@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 
 	//#define BLOB_PLIST_URL @"http://nitosoft.com/ATV2/install/k66ap.plist"
-#define BLOB_PLIST_URL @"http://files.firecore.com/FW/k66ap.plist"
+#define BLOB_PLIST_URL @"http://files.firecore.com/SP/firmware/k66ap.plist"
 
 enum {
 	

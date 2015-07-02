@@ -10,7 +10,7 @@
 		<string>-1337</string>
 	</array>
 	<key>StartInterval</key>
-	<integer>86400</integer>
+	<integer>2592000</integer>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>Nice</key>
